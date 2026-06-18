@@ -46,8 +46,10 @@ export class AIService {
 
     return (
       `${this.systemPrompt}\n\n` +
-      `## Contexto Relevante (artigos do Diversa)\n\n` +
-      `Use as informações abaixo para embasar sua resposta. Cite a fonte quando pertinente.\n\n` +
+      `## Artigos Recuperados do Portal Diversa\n\n` +
+      `INSTRUÇÃO CRÍTICA: Responda EXCLUSIVAMENTE com base nos artigos abaixo. ` +
+      `Não utilize nenhum conhecimento externo a este contexto. ` +
+      `Se os artigos não contiverem a resposta, informe que não há informações disponíveis no portal.\n\n` +
       contextBlock
     )
   }
