@@ -14,10 +14,14 @@ export function getSessionId(): string {
 export async function loadSession(sessionId: string): Promise<Conversation[]> {
   try {
     const res = await fetch(`/api/sessions/${sessionId}`)
-    if (!res.ok) return []
+    if (!res.ok) {
+      console.error('[Session] load failed — HTTP', res.status)
+      return []
+    }
     const data = (await res.json()) as { conversations: unknown[] }
     return deserialize(data.conversations ?? [])
-  } catch {
+  } catch (err) {
+    console.error('[Session] load error:', err)
     return []
   }
 }
@@ -27,13 +31,16 @@ export async function saveSession(
   conversations: Conversation[],
 ): Promise<void> {
   try {
-    await fetch(`/api/sessions/${sessionId}`, {
+    const res = await fetch(`/api/sessions/${sessionId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ conversations }),
     })
-  } catch {
-    // persistence is best-effort
+    if (!res.ok) {
+      console.error('[Session] save failed — HTTP', res.status)
+    }
+  } catch (err) {
+    console.error('[Session] save error:', err)
   }
 }
 
