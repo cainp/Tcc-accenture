@@ -1,10 +1,9 @@
 import json
 import os
 
-import numpy as np
 from flask import Flask, jsonify, request
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
+from sentence_transformers import SentenceTransformer, util
+import torch
 
 app = Flask(__name__)
 
@@ -20,15 +19,12 @@ with open(_data_path, "r", encoding="utf-8") as f:
 
 _texts = [f"{a['titulo']} {a.get('texto', '')}" for a in articles]
 
-vectorizer = TfidfVectorizer(
-    max_features=10000,
-    ngram_range=(1, 2),
-    sublinear_tf=True,
-)
-tfidf_matrix = vectorizer.fit_transform(_texts)
+print("[RAG] Carregando o modelo de embeddings (all-MiniLM-L6-v2)...")
+model = SentenceTransformer('all-MiniLM-L6-v2')
 
-print(f"[RAG] {len(articles)} artigos indexados.")
-
+print("[RAG] Calculando embeddings para os artigos...")
+document_embeddings = model.encode(_texts, convert_to_tensor=True)
+print(f"[RAG] {len(articles)} artigos indexados via Busca Semantica.")
 
 @app.route("/retrieve", methods=["POST"])
 def retrieve():
@@ -39,22 +35,26 @@ def retrieve():
     if not query:
         return jsonify({"results": []})
 
-    query_vec = vectorizer.transform([query])
-    similarities = cosine_similarity(query_vec, tfidf_matrix).flatten()
-    top_indices = np.argsort(similarities)[::-1][:top_k]
+    query_embedding = model.encode(query, convert_to_tensor=True)
+    
+    # cos_sim retorna uma matriz [1, num_docs]
+    cos_scores = util.cos_sim(query_embedding, document_embeddings)[0]
+    
+    top_results = torch.topk(cos_scores, k=min(top_k, len(articles)))
 
     results = []
-    for idx in top_indices:
-        if similarities[idx] < 0.01:
+    for score, idx in zip(top_results[0], top_results[1]):
+        score_val = float(score)
+        if score_val < 0.05:
             continue
-        article = articles[idx]
+        article = articles[int(idx)]
         results.append(
             {
                 "titulo": article["titulo"],
                 "texto": article["texto"][:2000],
                 "url": article.get("url", ""),
                 "categoria": article.get("categoria", ""),
-                "score": float(similarities[idx]),
+                "score": score_val,
             }
         )
 
