@@ -23,13 +23,19 @@ export class AIService {
       const response = await fetch(`${this.ragServiceUrl}/retrieve`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query, top_k: 3 }),
-        signal: AbortSignal.timeout(3000),
+        body: JSON.stringify({ query, top_k: 5 }),
+        signal: AbortSignal.timeout(8000),
       })
-      if (!response.ok) return []
+      if (!response.ok) {
+        console.error(`[RAG] HTTP ${response.status} for query: "${query}"`)
+        return []
+      }
       const data = (await response.json()) as { results: RagArticle[] }
-      return data.results ?? []
-    } catch {
+      const results = data.results ?? []
+      console.log(`[RAG] query="${query}" → ${results.length} artigos (scores: ${results.map((r) => r.score.toFixed(3)).join(', ')})`)
+      return results
+    } catch (err) {
+      console.error(`[RAG] Falha ao recuperar contexto para "${query}":`, err)
       return []
     }
   }
@@ -47,9 +53,11 @@ export class AIService {
     return (
       `${this.systemPrompt}\n\n` +
       `## Artigos Recuperados do Portal Diversa\n\n` +
-      `INSTRUÇÃO CRÍTICA: Responda EXCLUSIVAMENTE com base nos artigos abaixo. ` +
-      `Não utilize nenhum conhecimento externo a este contexto. ` +
-      `Se os artigos não contiverem a resposta, informe que não há informações disponíveis no portal.\n\n` +
+      `INSTRUÇÃO CRÍTICA: Os artigos abaixo são sua ÚNICA fonte de informação para esta resposta.\n` +
+      `- Responda EXCLUSIVAMENTE com base no conteúdo dos artigos abaixo.\n` +
+      `- NÃO invente títulos, URLs ou informações que não estejam nos artigos abaixo.\n` +
+      `- NÃO diga que não encontrou artigos — os artigos abaixo foram encontrados e DEVEM ser usados.\n` +
+      `- Cite o título e a URL exata de cada artigo usado ao final da resposta.\n\n` +
       contextBlock
     )
   }
