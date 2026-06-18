@@ -12,6 +12,7 @@ interface ChatState {
   addMessage: (conversationId: string, message: Message) => void
   appendToLastMessage: (conversationId: string, text: string) => void
   updateConversationTitle: (id: string, title: string) => void
+  deleteConversation: (id: string) => void
   setStreaming: (value: boolean) => void
 }
 
@@ -69,6 +70,25 @@ export const useChatStore = create<ChatState>((set) => ({
         c.id === id ? { ...c, title } : c,
       ),
     })),
+
+  deleteConversation: (id) =>
+    set((s) => {
+      const filtered = s.conversations.filter((c) => c.id !== id)
+      if (filtered.length === 0) {
+        const newConv: Conversation = {
+          id: crypto.randomUUID(),
+          title: 'New Chat',
+          messages: [],
+          createdAt: new Date(),
+        }
+        return { conversations: [newConv], activeConversationId: newConv.id }
+      }
+      const activeId =
+        s.activeConversationId === id
+          ? (filtered[0]?.id ?? null)
+          : s.activeConversationId
+      return { conversations: filtered, activeConversationId: activeId }
+    }),
 
   setStreaming: (value) => set({ isStreaming: value }),
 }))

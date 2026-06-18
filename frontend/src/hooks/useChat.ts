@@ -11,6 +11,7 @@ export function useChat() {
     addMessage,
     appendToLastMessage,
     updateConversationTitle,
+    deleteConversation,
     setStreaming,
     createConversation,
     setActiveConversation,
@@ -100,5 +101,7 @@ export function useChat() {
     stopStreaming,
     createConversation,
     setActiveConversation,
+    renameConversation: updateConversationTitle,
+    deleteConversation,
   }
 }
