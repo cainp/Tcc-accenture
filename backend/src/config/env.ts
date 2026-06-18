@@ -6,6 +6,7 @@ export interface Env {
   PORT: number
   FRONTEND_URL: string
   SYSTEM_PROMPT: string
+  RAG_SERVICE_URL: string
 }
 
 function loadSystemPrompt(): string {
@@ -27,5 +28,6 @@ export function getEnv(): Env {
     PORT: Number(process.env.PORT ?? 3000),
     FRONTEND_URL: process.env.FRONTEND_URL ?? 'http://localhost:5173',
     SYSTEM_PROMPT: loadSystemPrompt(),
+    RAG_SERVICE_URL: process.env.RAG_SERVICE_URL ?? 'http://localhost:8000',
   }
 }

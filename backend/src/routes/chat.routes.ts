@@ -4,7 +4,7 @@ import { AIService } from '../services/ai.service.ts'
 import { getEnv } from '../config/env.ts'
 
 const env = getEnv()
-const aiService = new AIService(env.GROQ_API_KEY, env.SYSTEM_PROMPT)
+const aiService = new AIService(env.GROQ_API_KEY, env.SYSTEM_PROMPT, env.RAG_SERVICE_URL)
 const chatController = new ChatController(aiService)
 
 export const chatRouter = new Hono().post('/', chatController.handleChat)

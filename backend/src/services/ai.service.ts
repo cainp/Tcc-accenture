@@ -3,13 +3,62 @@ import type { ChatMessage } from '../types/chat.ts'
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions'
 const GROQ_MODEL = 'llama-3.1-8b-instant'
 
+interface RagArticle {
+  titulo: string
+  texto: string
+  url: string
+  categoria: string
+  score: number
+}
+
 export class AIService {
   constructor(
     private readonly apiKey: string,
     private readonly systemPrompt: string,
+    private readonly ragServiceUrl: string,
   ) {}
 
+  private async retrieveContext(query: string): Promise<RagArticle[]> {
+    try {
+      const response = await fetch(`${this.ragServiceUrl}/retrieve`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query, top_k: 3 }),
+        signal: AbortSignal.timeout(3000),
+      })
+      if (!response.ok) return []
+      const data = (await response.json()) as { results: RagArticle[] }
+      return data.results ?? []
+    } catch {
+      return []
+    }
+  }
+
+  private buildSystemPromptWithContext(context: RagArticle[]): string {
+    if (context.length === 0) return this.systemPrompt
+
+    const contextBlock = context
+      .map(
+        (r, i) =>
+          `### Artigo ${i + 1}: ${r.titulo}\n${r.texto}\nFonte: ${r.url}`,
+      )
+      .join('\n\n---\n\n')
+
+    return (
+      `${this.systemPrompt}\n\n` +
+      `## Contexto Relevante (artigos do Diversa)\n\n` +
+      `Use as informações abaixo para embasar sua resposta. Cite a fonte quando pertinente.\n\n` +
+      contextBlock
+    )
+  }
+
   async *streamCompletion(messages: ChatMessage[]): AsyncGenerator<string> {
+    const lastUserMsg = [...messages].reverse().find((m) => m.role === 'user')
+    const context = lastUserMsg
+      ? await this.retrieveContext(lastUserMsg.content)
+      : []
+    const systemPrompt = this.buildSystemPromptWithContext(context)
+
     const response = await fetch(GROQ_URL, {
       method: 'POST',
       headers: {
@@ -22,7 +71,7 @@ export class AIService {
         max_tokens: 1024,
         stream: true,
         messages: [
-          { role: 'system', content: this.systemPrompt },
+          { role: 'system', content: systemPrompt },
           ...messages.map(({ role, content }) => ({ role, content })),
         ],
       }),
