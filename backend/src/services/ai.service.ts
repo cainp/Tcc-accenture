@@ -12,7 +12,7 @@ export class AIService {
   ) {}
 
   private retrieveContext(query: string): RagArticle[] {
-    const results = this.rag.retrieve(query, 5)
+    const results = this.rag.retrieve(query, 3)
     console.log(
       `[RAG] query="${query}" → ${results.length} artigos (scores: ${results.map((r) => r.score.toFixed(3)).join(', ')})`,
     )
@@ -61,7 +61,7 @@ export class AIService {
       body: JSON.stringify({
         model: GROQ_MODEL,
         temperature: 0.3,
-        max_tokens: 1024,
+        max_tokens: 700,
         stream: true,
         messages: [
           { role: 'system', content: systemPrompt },

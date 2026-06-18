@@ -160,7 +160,7 @@ export class RagService {
       if (!article) continue
       results.push({
         titulo: article.titulo,
-        texto: (article.texto ?? '').slice(0, 2000),
+        texto: (article.texto ?? '').slice(0, 800),
         url: article.url ?? '',
         categoria: article.categoria ?? '',
         tema: article.tema ?? [],
