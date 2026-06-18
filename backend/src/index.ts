@@ -2,6 +2,7 @@ import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { logger } from 'hono/logger'
 import { chatRouter } from './routes/chat.routes.ts'
+import { sessionRouter } from './routes/session.routes.ts'
 import { getEnv } from './config/env.ts'
 import { join } from 'node:path'
 
@@ -13,12 +14,13 @@ app.use(
   '/api/*',
   cors({
     origin: env.FRONTEND_URL,
-    allowMethods: ['POST', 'GET', 'OPTIONS'],
+    allowMethods: ['POST', 'GET', 'PUT', 'OPTIONS'],
     allowHeaders: ['Content-Type'],
   }),
 )
 
 app.route('/api/chat', chatRouter)
+app.route('/api/sessions', sessionRouter)
 app.get('/health', (c) => c.json({ status: 'ok' }))
 
 // Serve frontend static files in production

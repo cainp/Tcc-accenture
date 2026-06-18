@@ -6,6 +6,7 @@ interface ChatState {
   activeConversationId: string | null
   isStreaming: boolean
 
+  initConversations: (conversations: Conversation[]) => void
   createConversation: () => void
   setActiveConversation: (id: string) => void
   addMessage: (conversationId: string, message: Message) => void
@@ -18,6 +19,9 @@ export const useChatStore = create<ChatState>((set) => ({
   conversations: [],
   activeConversationId: null,
   isStreaming: false,
+
+  initConversations: (conversations) =>
+    set({ conversations, activeConversationId: conversations[0]?.id ?? null }),
 
   createConversation: () => {
     const newConv: Conversation = {
