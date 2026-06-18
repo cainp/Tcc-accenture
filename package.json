@@ -2,8 +2,7 @@
   "name": "tcc",
   "private": true,
   "scripts": {
-    "dev": "concurrently --names \"backend,frontend,rag\" --prefix-colors \"blue,green,magenta\" \"bun run --cwd backend dev\" \"bun run --cwd frontend dev\" \"backend/rag/.venv/Scripts/python.exe backend/rag/main.py\"",
-    "rag:setup": "python -m venv backend/rag/.venv && backend/rag/.venv/Scripts/pip.exe install -r backend/rag/requirements.txt",
+    "dev": "concurrently --names \"backend,frontend\" --prefix-colors \"blue,green\" \"bun run --cwd backend dev\" \"bun run --cwd frontend dev\"",
     "build": "bun install --cwd frontend && bun run --cwd frontend build",
     "start": "bun run --cwd backend start"
   },

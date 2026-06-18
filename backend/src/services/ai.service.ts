@@ -1,53 +1,38 @@
 import type { ChatMessage } from '../types/chat.ts'
+import type { RagArticle, RagService } from './rag.service.ts'
 
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions'
 const GROQ_MODEL = 'llama-3.1-8b-instant'
-
-interface RagArticle {
-  titulo: string
-  texto: string
-  url: string
-  categoria: string
-  score: number
-}
 
 export class AIService {
   constructor(
     private readonly apiKey: string,
     private readonly systemPrompt: string,
-    private readonly ragServiceUrl: string,
+    private readonly rag: RagService,
   ) {}
 
-  private async retrieveContext(query: string): Promise<RagArticle[]> {
-    try {
-      const response = await fetch(`${this.ragServiceUrl}/retrieve`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query, top_k: 5 }),
-        signal: AbortSignal.timeout(8000),
-      })
-      if (!response.ok) {
-        console.error(`[RAG] HTTP ${response.status} for query: "${query}"`)
-        return []
-      }
-      const data = (await response.json()) as { results: RagArticle[] }
-      const results = data.results ?? []
-      console.log(`[RAG] query="${query}" → ${results.length} artigos (scores: ${results.map((r) => r.score.toFixed(3)).join(', ')})`)
-      return results
-    } catch (err) {
-      console.error(`[RAG] Falha ao recuperar contexto para "${query}":`, err)
-      return []
-    }
+  private retrieveContext(query: string): RagArticle[] {
+    const results = this.rag.retrieve(query, 5)
+    console.log(
+      `[RAG] query="${query}" → ${results.length} artigos (scores: ${results.map((r) => r.score.toFixed(3)).join(', ')})`,
+    )
+    return results
   }
 
   private buildSystemPromptWithContext(context: RagArticle[]): string {
     if (context.length === 0) return this.systemPrompt
 
     const contextBlock = context
-      .map(
-        (r, i) =>
-          `### Artigo ${i + 1}: ${r.titulo}\n${r.texto}\nFonte: ${r.url}`,
-      )
+      .map((r, i) => {
+        const meta = [
+          r.tipo_conteudo && `Tipo: ${r.tipo_conteudo}`,
+          r.tema.length > 0 && `Temas: ${r.tema.join(', ')}`,
+        ]
+          .filter(Boolean)
+          .join(' | ')
+        const metaLine = meta ? `${meta}\n` : ''
+        return `### Artigo ${i + 1}: ${r.titulo}\n${metaLine}${r.texto}\nFonte: ${r.url}`
+      })
       .join('\n\n---\n\n')
 
     return (
@@ -64,9 +49,7 @@ export class AIService {
 
   async *streamCompletion(messages: ChatMessage[]): AsyncGenerator<string> {
     const lastUserMsg = [...messages].reverse().find((m) => m.role === 'user')
-    const context = lastUserMsg
-      ? await this.retrieveContext(lastUserMsg.content)
-      : []
+    const context = lastUserMsg ? this.retrieveContext(lastUserMsg.content) : []
     const systemPrompt = this.buildSystemPromptWithContext(context)
 
     const response = await fetch(GROQ_URL, {
