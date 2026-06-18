@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://SEU-BACKEND.railway.app/api/$1"
+    }
+  ]
+}

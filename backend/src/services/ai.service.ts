@@ -1,49 +1,63 @@
-import Anthropic from '@anthropic-ai/sdk'
 import type { ChatMessage } from '../types/chat.ts'
 
+const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions'
+const GROQ_MODEL = 'llama-3.1-8b-instant'
+
 export class AIService {
-  private readonly client: Anthropic
-
   constructor(
-    apiKey: string,
+    private readonly apiKey: string,
     private readonly systemPrompt: string,
-    private readonly model: string = 'claude-sonnet-4-6',
-  ) {
-    this.client = new Anthropic({ apiKey })
-  }
-
-  /**
-   * Stub for semantic search / RAG retrieval.
-   * Replace with a real vector DB call (Pinecone, Weaviate, pgvector, etc.)
-   */
-  private async retrieveContext(_query: string): Promise<string> {
-    return ''
-  }
+  ) {}
 
   async *streamCompletion(messages: ChatMessage[]): AsyncGenerator<string> {
-    const lastUserMessage = [...messages].reverse().find((m) => m.role === 'user')
-
-    const context = lastUserMessage
-      ? await this.retrieveContext(lastUserMessage.content)
-      : ''
-
-    const systemWithContext = context
-      ? `${this.systemPrompt}\n\n<context>\n${context}\n</context>`
-      : this.systemPrompt
-
-    const stream = this.client.messages.stream({
-      model: this.model,
-      max_tokens: 2048,
-      system: systemWithContext,
-      messages: messages.map(({ role, content }) => ({ role, content })),
+    const response = await fetch(GROQ_URL, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${this.apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: GROQ_MODEL,
+        temperature: 0.3,
+        max_tokens: 1024,
+        stream: true,
+        messages: [
+          { role: 'system', content: this.systemPrompt },
+          ...messages.map(({ role, content }) => ({ role, content })),
+        ],
+      }),
     })
 
-    for await (const event of stream) {
-      if (
-        event.type === 'content_block_delta' &&
-        event.delta.type === 'text_delta'
-      ) {
-        yield event.delta.text
+    if (!response.ok) {
+      const err = await response.text()
+      throw new Error(`Groq API error ${response.status}: ${err}`)
+    }
+
+    if (!response.body) throw new Error('No response body from Groq')
+
+    const reader = response.body.getReader()
+    const decoder = new TextDecoder()
+    let buffer = ''
+
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+      buffer += decoder.decode(value, { stream: true })
+
+      const lines = buffer.split('\n')
+      buffer = lines.pop() ?? ''
+
+      for (const line of lines) {
+        const trimmed = line.trim()
+        if (!trimmed || trimmed === 'data: [DONE]') continue
+        if (!trimmed.startsWith('data: ')) continue
+        try {
+          const json = JSON.parse(trimmed.slice(6))
+          const content = json.choices?.[0]?.delta?.content
+          if (content) yield content
+        } catch {
+          // skip malformed SSE chunks
+        }
       }
     }
   }

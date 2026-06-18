@@ -1,6 +1,6 @@
 import { useCallback, useRef } from 'react'
 import { useChatStore } from '../store/chat.store'
-import { streamChatCompletion } from '../services/mock.service'
+import { streamChatCompletion } from '../services/api.service'
 import type { Message } from '../types/chat'
 
 export function useChat() {
