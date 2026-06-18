@@ -14,7 +14,7 @@ export function ChatWindow() {
 
       <div className="flex-1 overflow-hidden">
         {activeConversation && activeConversation.messages.length > 0 ? (
-          <MessageList messages={activeConversation.messages} />
+          <MessageList messages={activeConversation.messages} isStreaming={isStreaming} />
         ) : (
           <WelcomeScreen />
         )}
