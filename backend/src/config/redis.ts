@@ -9,9 +9,7 @@ export function getRedis(): Redis | null {
 
   if (!client) {
     client = new Redis(url, {
-      enableOfflineQueue: false,
       retryStrategy(times) {
-        // Stop retrying once marked unavailable or after 3 attempts
         if (unavailable || times > 3) return null
         return Math.min(times * 500, 2000)
       },
@@ -34,5 +32,5 @@ export function getRedis(): Redis | null {
     })
   }
 
-  return client.status === 'ready' ? client : null
+  return client
 }
