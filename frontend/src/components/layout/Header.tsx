@@ -1,5 +1,5 @@
-import type { ReactElement } from 'react'
 import diversaLogo from '../../assets/DIversa-logo.svg'
+import ediLogo from '../../assets/edi-logo.svg'
 
 interface HeaderProps {
   title: string
@@ -13,76 +13,32 @@ export function Header({ title }: HeaderProps) {
           <img src={diversaLogo} alt="DIversa" width={72} height={27} style={{ width: 72, height: 27, objectFit: 'contain' }} />
         </div>
         <span className="text-white/20">|</span>
+        <div className="flex-shrink-0">
+          <img src={ediLogo} alt="EDI" width={32.23} height={20.72} style={{ width: 32.23, height: 20.72, objectFit: 'contain' }} />
+        </div>
+        <span className="text-white/20">|</span>
+        <ArticleIcon />
         <span className="text-gray-300 text-sm truncate">{title}</span>
         <span className="px-2 py-0.5 text-[10px] rounded-full bg-emerald-500/20 text-emerald-400 font-semibold tracking-wide flex-shrink-0">
           ACTIVE
         </span>
       </div>
 
-      <div className="flex items-center gap-1 flex-shrink-0">
-        <IconButton label="Share">
-          <ShareIcon />
-        </IconButton>
-        <IconButton label="Menu">
-          <MenuIcon />
-        </IconButton>
-      </div>
     </header>
   )
 }
 
-function IconButton({
-  label,
-  children,
-}: {
-  label: string
-  children: ReactElement
-}) {
-  return (
-    <button
-      aria-label={label}
-      className="p-1.5 rounded-lg text-gray-500 hover:text-white hover:bg-white/5 transition-colors"
-    >
-      {children}
-    </button>
-  )
-}
-
-function ShareIcon() {
+function ArticleIcon() {
   return (
     <svg
       width="16"
       height="16"
       viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
+      fill="currentColor"
+      className="text-gray-400 flex-shrink-0"
     >
-      <circle cx="18" cy="5" r="3" />
-      <circle cx="6" cy="12" r="3" />
-      <circle cx="18" cy="19" r="3" />
-      <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
-      <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+      <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" />
     </svg>
   )
 }
 
-function MenuIcon() {
-  return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-    >
-      <circle cx="12" cy="5" r="1" fill="currentColor" />
-      <circle cx="12" cy="12" r="1" fill="currentColor" />
-      <circle cx="12" cy="19" r="1" fill="currentColor" />
-    </svg>
-  )
-}

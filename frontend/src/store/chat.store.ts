@@ -27,7 +27,7 @@ export const useChatStore = create<ChatState>((set) => ({
   createConversation: () => {
     const newConv: Conversation = {
       id: crypto.randomUUID(),
-      title: 'New Chat',
+      title: 'Nova Conversa',
       messages: [],
       createdAt: new Date(),
     }
@@ -77,7 +77,7 @@ export const useChatStore = create<ChatState>((set) => ({
       if (filtered.length === 0) {
         const newConv: Conversation = {
           id: crypto.randomUUID(),
-          title: 'New Chat',
+          title: 'Nova Conversa',
           messages: [],
           createdAt: new Date(),
         }

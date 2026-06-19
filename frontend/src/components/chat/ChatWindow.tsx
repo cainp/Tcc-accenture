@@ -10,7 +10,7 @@ export function ChatWindow() {
 
   return (
     <main className="flex flex-col flex-1 h-full overflow-hidden">
-      <Header title={activeConversation?.title ?? 'New Chat'} />
+      <Header title={activeConversation?.title ?? 'Nova Conversa'} />
 
       <div className="flex-1 overflow-hidden">
         {activeConversation && activeConversation.messages.length > 0 ? (
@@ -37,10 +37,10 @@ function WelcomeScreen() {
         <AccureArrow size={22} />
       </div>
       <h2 className="text-2xl font-semibold text-white mb-2">
-        How can I help you today?
+        Como posso te ajudar hoje?
       </h2>
       <p className="text-gray-400 text-sm max-w-xs">
-        accure is ready to assist with code, writing, or analysis.
+        Estou pronto para te auxiliar na criação de aulas acessíveis, busca por recursos pedagógicos ou dúvidas sobre inclusão escolar
       </p>
     </div>
   )

@@ -21,16 +21,16 @@ export function Sidebar() {
       <div className="p-4">
         <button
           onClick={createConversation}
-          className="flex items-center gap-2 w-full px-3 py-2 rounded-lg border border-white/10 text-sm text-white hover:bg-white/5 transition-colors"
+          className="flex items-center justify-center gap-2 w-full px-3 py-2 rounded-lg border border-white/10 text-sm text-white hover:bg-white/5 transition-colors"
         >
           <span className="text-[#A100FF] text-base leading-none">+</span>
-          New Chat
+          Nova Conversa
         </button>
       </div>
 
       <div className="px-4 pb-1">
         <p className="text-[11px] font-semibold text-gray-500 tracking-widest uppercase">
-          Recent
+          Recente
         </p>
       </div>
 
@@ -50,7 +50,7 @@ export function Sidebar() {
       <div className="p-4 border-t border-white/5">
         <button className="flex items-center gap-2 text-sm text-gray-500 hover:text-white transition-colors">
           <HelpIcon />
-          Help
+          Ajuda
         </button>
       </div>
     </aside>

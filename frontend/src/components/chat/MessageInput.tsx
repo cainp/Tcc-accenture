@@ -47,7 +47,7 @@ export function MessageInput({
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={handleKeyDown}
           onInput={handleInput}
-          placeholder="Message accure…"
+          placeholder="Peça ao Edi..."
           rows={1}
           disabled={disabled}
           className="flex-1 bg-transparent text-white text-sm placeholder-gray-500 resize-none outline-none leading-relaxed py-1 max-h-[200px] disabled:cursor-not-allowed"
@@ -61,11 +61,11 @@ export function MessageInput({
           {isStreaming ? (
             <>
               <StopIcon />
-              Stop
+              Parar
             </>
           ) : (
             <>
-              Send
+              Enviar
               <SendArrowIcon />
             </>
           )}
@@ -73,7 +73,7 @@ export function MessageInput({
       </div>
 
       <p className="text-center text-[11px] text-gray-600 mt-2">
-        accure can make mistakes. Consider verifying important information.
+        O Edi AI pode cometer erros. Considere verificar informações importantes.
       </p>
     </div>
   )
