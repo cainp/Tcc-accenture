@@ -1,7 +1,7 @@
 import { useCallback, useRef } from 'react'
 import { useChatStore } from '../store/chat.store'
 import { streamChatCompletion } from '../services/api.service'
-import type { Message } from '../types/chat'
+import type { Message, UserProfile } from '../types/chat'
 
 export function useChat() {
   const {
@@ -49,6 +49,7 @@ export function useChat() {
         role: 'assistant',
         content: '',
         createdAt: new Date(),
+        profile: profile as UserProfile | undefined,
       }
       addMessage(activeConversationId, assistantPlaceholder)
       setStreaming(true)

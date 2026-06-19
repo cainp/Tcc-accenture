@@ -4,8 +4,7 @@ import { MessageList } from './MessageList'
 import { MessageInput } from './MessageInput'
 import { useChat } from '../../hooks/useChat'
 import { AccureArrow } from '../ui/Logo'
-
-type UserProfile = 'professor' | 'familia' | 'gestor'
+import type { UserProfile } from '../../types/chat'
 
 export function ChatWindow() {
   const { activeConversation, activeConversationId, isStreaming, sendMessage, stopStreaming } =

@@ -1,7 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
-import type { Message } from '../../types/chat'
+import type { Message, UserProfile } from '../../types/chat'
 import { AccureArrow } from '../ui/Logo'
+
+const PROFILE_LABELS: Record<UserProfile, string> = {
+  professor: 'Perfil: Professor',
+  familia: 'Perfil: Família',
+  gestor: 'Perfil: Gestor',
+}
 
 interface MessageItemProps {
   message: Message
@@ -86,6 +92,11 @@ export function MessageItem({ message, isStreaming = false }: MessageItemProps) 
           </>
         ) : (
           <Cursor />
+        )}
+        {!isStreaming && message.profile && (
+          <p className="text-xs text-gray-600 mt-3">
+            {PROFILE_LABELS[message.profile]}
+          </p>
         )}
       </div>
     </div>
