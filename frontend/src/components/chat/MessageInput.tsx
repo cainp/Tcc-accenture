@@ -40,6 +40,7 @@ export function MessageInput({
 
   return (
     <div className="px-6 pb-5 flex-shrink-0">
+      <div className="max-w-3xl mx-auto">
       <div className="flex items-end gap-2 bg-[#201F1F] border border-white/10 rounded-2xl px-3 py-2.5 focus-within:border-[#A100FF]/50 transition-colors">
         <textarea
           ref={textareaRef}
@@ -75,6 +76,7 @@ export function MessageInput({
       <p className="text-center text-[11px] text-gray-600 mt-2">
         O Edi AI pode cometer erros. Considere verificar informações importantes.
       </p>
+      </div>
     </div>
   )
 }

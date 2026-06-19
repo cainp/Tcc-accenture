@@ -16,15 +16,17 @@ export function MessageList({ messages, isStreaming }: MessageListProps) {
   }, [messages])
 
   return (
-    <div className="h-full overflow-y-auto px-6 py-6 space-y-6">
-      {messages.map((msg) => (
-        <MessageItem
-          key={msg.id}
-          message={msg}
-          isStreaming={isStreaming && msg.id === lastMsgId && msg.role === 'assistant'}
-        />
-      ))}
-      <div ref={bottomRef} />
+    <div className="h-full overflow-y-auto px-6 py-6">
+      <div className="max-w-3xl mx-auto space-y-6">
+        {messages.map((msg) => (
+          <MessageItem
+            key={msg.id}
+            message={msg}
+            isStreaming={isStreaming && msg.id === lastMsgId && msg.role === 'assistant'}
+          />
+        ))}
+        <div ref={bottomRef} />
+      </div>
     </div>
   )
 }
