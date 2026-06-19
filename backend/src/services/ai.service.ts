@@ -1,4 +1,5 @@
 import type { ChatMessage } from '../types/chat.ts'
+import { resolvePreset } from '../config/profiles.ts'
 
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions'
 const GROQ_MODEL = 'llama-3.1-8b-instant'
@@ -62,7 +63,9 @@ export class AIService {
     )
   }
 
-  async *streamCompletion(messages: ChatMessage[]): AsyncGenerator<string> {
+  async *streamCompletion(messages: ChatMessage[], profile?: string): AsyncGenerator<string> {
+    const preset = resolvePreset(profile)
+
     const lastUserMsg = [...messages].reverse().find((m) => m.role === 'user')
     const context = lastUserMsg
       ? await this.retrieveContext(lastUserMsg.content)
@@ -77,8 +80,10 @@ export class AIService {
       },
       body: JSON.stringify({
         model: GROQ_MODEL,
-        temperature: 0.3,
-        max_tokens: 1024,
+        temperature: preset.temperature,
+        max_tokens: preset.max_tokens,
+        top_p: preset.top_p,
+        frequency_penalty: preset.frequency_penalty,
         stream: true,
         messages: [
           { role: 'system', content: systemPrompt },

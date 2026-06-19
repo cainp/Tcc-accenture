@@ -34,7 +34,12 @@ export class SessionService {
         const data = JSON.parse(raw) as { conversations?: unknown[] }
         return Array.isArray(data.conversations) ? data.conversations : []
       } catch (err) {
-        console.error('[Session] Redis get failed, falling back to local:', err)
+        const isConnErr = err instanceof Error && /closed|refused|ENOTFOUND/i.test(err.message)
+        if (isConnErr) {
+          console.warn('[Session] Redis unavailable — using local fallback')
+        } else {
+          console.error('[Session] Redis get failed, falling back to local:', err)
+        }
       }
     } else {
       console.warn('[Session] Redis unavailable — using local fallback')
@@ -52,7 +57,12 @@ export class SessionService {
         await redis.setex(`session:${sessionId}`, TTL, JSON.stringify({ conversations }))
         return
       } catch (err) {
-        console.error('[Session] Redis save failed, falling back to local:', err)
+        const isConnErr = err instanceof Error && /closed|refused|ENOTFOUND/i.test(err.message)
+        if (isConnErr) {
+          console.warn('[Session] Redis unavailable — using local fallback')
+        } else {
+          console.error('[Session] Redis save failed, falling back to local:', err)
+        }
       }
     } else {
       console.warn('[Session] Redis unavailable — using local fallback')

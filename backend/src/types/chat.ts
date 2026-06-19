@@ -7,4 +7,5 @@ export interface ChatMessage {
 
 export interface ChatRequestBody {
   messages: ChatMessage[]
+  profile?: string
 }

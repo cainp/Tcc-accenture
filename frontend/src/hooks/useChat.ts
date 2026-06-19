@@ -24,7 +24,7 @@ export function useChat() {
   )
 
   const sendMessage = useCallback(
-    async (text: string) => {
+    async (text: string, profile?: string) => {
       if (!activeConversationId || isStreaming) return
 
       const userMessage: Message = {
@@ -65,6 +65,7 @@ export function useChat() {
           history,
           (chunk) => appendToLastMessage(activeConversationId, chunk),
           abortRef.current.signal,
+          profile,
         )
       } catch (err) {
         if (err instanceof Error && err.name !== 'AbortError') {

@@ -6,11 +6,12 @@ export async function streamChatCompletion(
   messages: ApiMessage[],
   onChunk: (text: string) => void,
   signal?: AbortSignal,
+  profile?: string,
 ): Promise<void> {
   const response = await fetch('/api/chat', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ messages }),
+    body: JSON.stringify({ messages, ...(profile ? { profile } : {}) }),
     signal,
   })
 

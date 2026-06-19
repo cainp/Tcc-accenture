@@ -1,20 +1,32 @@
+import { useState, useCallback } from 'react'
 import { Header } from '../layout/Header'
 import { MessageList } from './MessageList'
 import { MessageInput } from './MessageInput'
 import { useChat } from '../../hooks/useChat'
 import { AccureArrow } from '../ui/Logo'
 
+type UserProfile = 'professor' | 'familia' | 'gestor'
+
 export function ChatWindow() {
   const { activeConversation, activeConversationId, isStreaming, sendMessage, stopStreaming } =
     useChat()
 
+  const [profile, setProfile] = useState<UserProfile | undefined>(undefined)
+
   const hasMessages = activeConversation && activeConversation.messages.length > 0
 
+  const handleSend = useCallback(
+    (text: string) => sendMessage(text, profile),
+    [sendMessage, profile],
+  )
+
   const inputProps = {
-    onSend: sendMessage,
+    onSend: handleSend,
     onStop: stopStreaming,
     isStreaming,
     disabled: !activeConversationId,
+    profile,
+    onProfileChange: setProfile,
   }
 
   return (
@@ -44,9 +56,11 @@ interface WelcomeScreenProps {
   onStop: () => void
   isStreaming: boolean
   disabled: boolean
+  profile?: UserProfile
+  onProfileChange: (profile: UserProfile | undefined) => void
 }
 
-function WelcomeScreen({ onSend, onStop, isStreaming, disabled }: WelcomeScreenProps) {
+function WelcomeScreen({ onSend, onStop, isStreaming, disabled, profile, onProfileChange }: WelcomeScreenProps) {
   return (
     <div className="w-full flex flex-col items-center text-center px-6">
       <div className="flex items-center gap-3 mb-2">
@@ -59,7 +73,14 @@ function WelcomeScreen({ onSend, onStop, isStreaming, disabled }: WelcomeScreenP
         Estou pronto para te auxiliar na criação de aulas acessíveis, busca por recursos pedagógicos ou dúvidas sobre inclusão escolar
       </p>
       <div className="w-full max-w-3xl">
-        <MessageInput onSend={onSend} onStop={onStop} isStreaming={isStreaming} disabled={disabled} />
+        <MessageInput
+          onSend={onSend}
+          onStop={onStop}
+          isStreaming={isStreaming}
+          disabled={disabled}
+          profile={profile}
+          onProfileChange={onProfileChange}
+        />
       </div>
     </div>
   )

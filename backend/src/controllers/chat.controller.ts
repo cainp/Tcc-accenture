@@ -21,7 +21,7 @@ export class ChatController {
 
     return streamText(c, async (stream) => {
       try {
-        for await (const chunk of this.aiService.streamCompletion(body.messages)) {
+        for await (const chunk of this.aiService.streamCompletion(body.messages, body.profile)) {
           await stream.write(chunk)
         }
       } catch (err) {
