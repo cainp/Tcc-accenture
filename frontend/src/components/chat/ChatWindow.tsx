@@ -26,7 +26,9 @@ export function ChatWindow() {
           <div className="flex-1 overflow-hidden">
             <MessageList messages={activeConversation.messages} isStreaming={isStreaming} />
           </div>
-          <MessageInput {...inputProps} />
+          <div className="input-slide-down">
+            <MessageInput {...inputProps} />
+          </div>
         </>
       ) : (
         <div className="flex-1 flex flex-col items-center justify-center overflow-hidden">
