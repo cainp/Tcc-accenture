@@ -82,8 +82,10 @@ export class AIService {
     const config = resolveProfile(profile)
     const lastUserMsg = [...messages].reverse().find((m) => m.role === 'user')
 
-    if (this.llmCache && lastUserMsg) {
-      const cached = await this.llmCache.get(lastUserMsg.content)
+    const cacheKey = lastUserMsg ? `[${profile ?? 'default'}] ${lastUserMsg.content}` : null
+
+    if (this.llmCache && cacheKey) {
+      const cached = await this.llmCache.get(cacheKey)
       if (cached) {
         yield cached
         return
@@ -150,8 +152,8 @@ export class AIService {
       }
     }
 
-    if (this.llmCache && lastUserMsg && fullResponse) {
-      this.llmCache.set(lastUserMsg.content, fullResponse).catch(() => {})
+    if (this.llmCache && cacheKey && fullResponse) {
+      this.llmCache.set(cacheKey, fullResponse).catch(() => {})
     }
   }
 }
