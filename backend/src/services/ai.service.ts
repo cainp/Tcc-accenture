@@ -1,5 +1,5 @@
 import type { ChatMessage } from '../types/chat.ts'
-import { resolvePreset } from '../config/profiles.ts'
+import { resolveProfile } from '../config/profiles.ts'
 import type { SemanticCacheService } from './semantic-cache.service.ts'
 
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions'
@@ -54,8 +54,10 @@ export class AIService {
     }
   }
 
-  private buildSystemPromptWithContext(context: RagArticle[]): string {
-    if (context.length === 0) return this.systemPrompt
+  private buildSystemPrompt(persona: string, context: RagArticle[]): string {
+    const base = `${persona}\n\n${this.systemPrompt}`
+
+    if (context.length === 0) return base
 
     const contextBlock = context
       .map(
@@ -65,7 +67,7 @@ export class AIService {
       .join('\n\n---\n\n')
 
     return (
-      `${this.systemPrompt}\n\n` +
+      `${base}\n\n` +
       `## Artigos Recuperados do Portal Diversa\n\n` +
       `INSTRUÇÃO CRÍTICA: Os artigos abaixo são sua ÚNICA fonte de informação para esta resposta.\n` +
       `- Responda EXCLUSIVAMENTE com base no conteúdo dos artigos abaixo.\n` +
@@ -77,7 +79,7 @@ export class AIService {
   }
 
   async *streamCompletion(messages: ChatMessage[], profile?: string): AsyncGenerator<string> {
-    const preset = resolvePreset(profile)
+    const config = resolveProfile(profile)
     const lastUserMsg = [...messages].reverse().find((m) => m.role === 'user')
 
     if (this.llmCache && lastUserMsg) {
@@ -89,7 +91,7 @@ export class AIService {
     }
 
     const context = lastUserMsg ? await this.retrieveContext(lastUserMsg.content) : []
-    const systemPrompt = this.buildSystemPromptWithContext(context)
+    const systemPrompt = this.buildSystemPrompt(config.persona, context)
 
     const response = await fetch(GROQ_URL, {
       method: 'POST',
@@ -99,10 +101,10 @@ export class AIService {
       },
       body: JSON.stringify({
         model: GROQ_MODEL,
-        temperature: preset.temperature,
-        max_tokens: preset.max_tokens,
-        top_p: preset.top_p,
-        frequency_penalty: preset.frequency_penalty,
+        temperature: config.temperature,
+        max_tokens: config.max_tokens,
+        top_p: config.top_p,
+        frequency_penalty: config.frequency_penalty,
         stream: true,
         messages: [
           { role: 'system', content: systemPrompt },
