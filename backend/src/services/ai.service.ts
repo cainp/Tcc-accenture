@@ -55,9 +55,9 @@ export class AIService {
   }
 
   private buildSystemPrompt(persona: string, context: RagArticle[]): string {
-    const profileBlock = persona ? `\n\n${persona}` : ''
-
-    if (context.length === 0) return `${this.systemPrompt}${profileBlock}`
+    if (context.length === 0) {
+      return persona ? `${this.systemPrompt}\n\n${persona}` : this.systemPrompt
+    }
 
     const contextBlock = context
       .map(
@@ -66,16 +66,14 @@ export class AIService {
       )
       .join('\n\n---\n\n')
 
-    return (
-      `${this.systemPrompt}${profileBlock}\n\n` +
-      `## Artigos Recuperados do Portal Diversa\n\n` +
-      `INSTRUÇÃO CRÍTICA: Os artigos abaixo são sua ÚNICA fonte de informação para esta resposta.\n` +
-      `- Responda EXCLUSIVAMENTE com base no conteúdo dos artigos abaixo.\n` +
-      `- NÃO invente títulos, URLs ou informações que não estejam nos artigos abaixo.\n` +
-      `- NÃO diga que não encontrou artigos — os artigos abaixo foram encontrados e DEVEM ser usados.\n` +
-      `- Cite o título e a URL exata de cada artigo usado ao final da resposta.\n\n` +
-      contextBlock
-    )
+    const parts = [
+      this.systemPrompt,
+      `## Artigos Recuperados do Portal Diversa\n\n${contextBlock}`,
+    ]
+
+    if (persona) parts.push(persona)
+
+    return parts.join('\n\n')
   }
 
   async *streamCompletion(messages: ChatMessage[], profile?: string): AsyncGenerator<string> {

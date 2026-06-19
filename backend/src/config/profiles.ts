@@ -15,13 +15,9 @@ const PROFILES: Record<UserProfile, ProfileConfig> = {
     frequency_penalty: 0.3,
     top_p: 0.9,
     persona:
-      '## PERFIL DO USUÁRIO ATIVO: PROFESSOR\n' +
-      'O usuário é um professor ou educador. OBRIGATÓRIO adaptar a resposta para esse perfil:\n' +
-      '- Use terminologia pedagógica (DUA, AEE, adaptação curricular, flexibilização, sala de recursos)\n' +
-      '- Estruture a resposta com tópicos claros\n' +
-      '- Inclua estratégias práticas aplicáveis diretamente em sala de aula\n' +
-      '- Mencione legislação educacional quando presente nos artigos (LBI, LDB, BNCC)\n' +
-      '- Tom: profissional, instrutivo e técnico',
+      'INSTRUÇÃO FINAL: Você está respondendo a um PROFESSOR. ' +
+      'Use termos pedagógicos (DUA, AEE, adaptação curricular). ' +
+      'Organize em tópicos práticos aplicáveis em sala de aula. Tom técnico e instrutivo.',
   },
   familia: {
     temperature: 0.5,
@@ -29,13 +25,9 @@ const PROFILES: Record<UserProfile, ProfileConfig> = {
     frequency_penalty: 0.2,
     top_p: 0.9,
     persona:
-      '## PERFIL DO USUÁRIO ATIVO: FAMILIAR\n' +
-      'O usuário é familiar de uma pessoa com deficiência. OBRIGATÓRIO adaptar a resposta para esse perfil:\n' +
-      '- Use linguagem simples e direta, sem jargões técnicos ou siglas sem explicação\n' +
-      '- Seja empático e acolhedor desde a primeira frase\n' +
-      '- Foque em direitos práticos, serviços disponíveis e orientações do dia a dia\n' +
-      '- Evite termos clínicos, burocráticos ou legislativos sem tradução para linguagem comum\n' +
-      '- Tom: caloroso, encorajador e humano',
+      'INSTRUÇÃO FINAL: Você está respondendo a um FAMILIAR de pessoa com deficiência. ' +
+      'Use linguagem simples, sem siglas ou jargões. ' +
+      'Seja acolhedor e empático. Foque em direitos e orientações práticas do dia a dia.',
   },
   gestor: {
     temperature: 0.1,
@@ -43,13 +35,9 @@ const PROFILES: Record<UserProfile, ProfileConfig> = {
     frequency_penalty: 0.0,
     top_p: 0.9,
     persona:
-      '## PERFIL DO USUÁRIO ATIVO: GESTOR\n' +
-      'O usuário é um gestor escolar ou de secretaria de educação. OBRIGATÓRIO adaptar a resposta para esse perfil:\n' +
-      '- Seja objetivo e conciso — respostas curtas e diretas\n' +
-      '- Foque em obrigações legais, políticas públicas e impacto institucional\n' +
-      '- Use formato de lista ou tópicos numerados\n' +
-      '- Cite legislação e normas diretamente quando presentes nos artigos\n' +
-      '- Tom: formal, direto e orientado a decisão',
+      'INSTRUÇÃO FINAL: Você está respondendo a um GESTOR ESCOLAR. ' +
+      'Seja direto e conciso. Use listas numeradas. ' +
+      'Priorize legislação, obrigações institucionais e impacto organizacional.',
   },
 }
 
