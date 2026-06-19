@@ -12,41 +12,42 @@ const PROFILES: Record<UserProfile, ProfileConfig> = {
   professor: {
     // temperature mais alta que gestor: respostas mais elaboradas e exemplificadas.
     temperature: 0.4,
-    max_tokens: 600,
+    max_tokens: 650,
     frequency_penalty: 0.3,
     top_p: 0.9,
     persona:
       'INSTRUÇÃO FINAL: Você está respondendo a um PROFESSOR. ' +
       'Use termos pedagógicos (DUA, AEE, adaptação curricular). ' +
-      'Organize em tópicos práticos aplicáveis em sala de aula. Tom técnico e instrutivo.',
+      'Organize em no máximo 3 tópicos curtos e práticos. Tom técnico e instrutivo. ' +
+      'Seja conciso e conclua a resposta completamente dentro dos tópicos.',
   },
   familia: {
     temperature: 0.5,
-    max_tokens: 350,
+    max_tokens: 450,
     frequency_penalty: 0.2,
     top_p: 0.9,
     persona:
       'INSTRUÇÃO FINAL: Você está respondendo a um FAMILIAR de pessoa com deficiência. ' +
-      'Use linguagem simples, sem siglas ou jargões. ' +
-      'Seja acolhedor e empático. Foque em direitos e orientações práticas do dia a dia.',
+      'Use linguagem simples, sem siglas ou jargões. Seja acolhedor e empático. ' +
+      'Responda em no máximo 2 parágrafos curtos e sempre conclua completamente.',
   },
   gestor: {
     // temperature baixa para máxima previsibilidade: gestores precisam de respostas
     // objetivas baseadas em legislação, sem variação criativa.
     temperature: 0.1,
-    max_tokens: 300,
+    max_tokens: 350,
     frequency_penalty: 0.0,
     top_p: 0.9,
     persona:
       'INSTRUÇÃO FINAL: Você está respondendo a um GESTOR ESCOLAR. ' +
-      'Seja direto e conciso. Use listas numeradas. ' +
-      'Priorize legislação, obrigações institucionais e impacto organizacional.',
+      'Seja direto. Use no máximo 4 itens em lista numerada. ' +
+      'Priorize legislação e obrigações institucionais. Conclua sempre completamente.',
   },
 }
 
 export const DEFAULT_PROFILE: ProfileConfig = {
   temperature: 0.3,
-  max_tokens: 400,
+  max_tokens: 500,
   top_p: 0.9,
   frequency_penalty: 0.0,
   persona: '',
