@@ -55,9 +55,9 @@ export class AIService {
   }
 
   private buildSystemPrompt(persona: string, context: RagArticle[]): string {
-    const base = `${persona}\n\n${this.systemPrompt}`
+    const profileBlock = persona ? `\n\n${persona}` : ''
 
-    if (context.length === 0) return base
+    if (context.length === 0) return `${this.systemPrompt}${profileBlock}`
 
     const contextBlock = context
       .map(
@@ -67,7 +67,7 @@ export class AIService {
       .join('\n\n---\n\n')
 
     return (
-      `${base}\n\n` +
+      `${this.systemPrompt}${profileBlock}\n\n` +
       `## Artigos Recuperados do Portal Diversa\n\n` +
       `INSTRUÇÃO CRÍTICA: Os artigos abaixo são sua ÚNICA fonte de informação para esta resposta.\n` +
       `- Responda EXCLUSIVAMENTE com base no conteúdo dos artigos abaixo.\n` +
