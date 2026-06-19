@@ -19,7 +19,7 @@ export class AIService {
     private readonly systemPrompt: string,
     private readonly ragServiceUrl: string,
     private readonly ragCache?: SemanticCacheService<RagArticle[]>,
-    private readonly llmCache?: SemanticCacheService<string>,
+    private readonly llmCaches?: Map<string, SemanticCacheService<string>>,
   ) {}
 
   private async retrieveContext(query: string): Promise<RagArticle[]> {
@@ -80,10 +80,11 @@ export class AIService {
     const config = resolveProfile(profile)
     const lastUserMsg = [...messages].reverse().find((m) => m.role === 'user')
 
-    const cacheKey = lastUserMsg ? `[${profile ?? 'default'}] ${lastUserMsg.content}` : null
+    const llmCache = this.llmCaches?.get(profile ?? 'default')
+    const cacheKey = lastUserMsg?.content ?? null
 
-    if (this.llmCache && cacheKey) {
-      const cached = await this.llmCache.get(cacheKey)
+    if (llmCache && cacheKey) {
+      const cached = await llmCache.get(cacheKey)
       if (cached) {
         yield cached
         return
@@ -150,8 +151,8 @@ export class AIService {
       }
     }
 
-    if (this.llmCache && cacheKey && fullResponse) {
-      this.llmCache.set(cacheKey, fullResponse).catch(() => {})
+    if (llmCache && cacheKey && fullResponse) {
+      llmCache.set(cacheKey, fullResponse).catch(() => {})
     }
   }
 }
