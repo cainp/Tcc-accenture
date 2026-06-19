@@ -1,6 +1,8 @@
 import { Redis } from 'ioredis'
 
 const CACHE_TTL_SECONDS = 60 * 60 * 24 * 7 // 7 dias
+// 500 entradas é o teto antes de parar de armazenar. Não há evicção ativa porque
+// isso exigiria lógica LRU; o TTL cuida da limpeza passiva ao longo do tempo.
 const MAX_CACHE_ENTRIES = 500
 const COHERE_EMBED_URL = 'https://api.cohere.com/v2/embed'
 
@@ -23,8 +25,12 @@ export class SemanticCacheService<T> {
     redisUrl: string,
     private readonly cohereApiKey: string,
     namespace: string,
+    // 0.82 calibrado empiricamente: captura variações de escrita da mesma pergunta
+    // sem aceitar perguntas apenas relacionadas ao tema (ex: 0.75 causava falsos positivos).
     private readonly threshold = 0.82,
   ) {
+    // Namespace no prefixo das chaves isola RAG, LLM-professor, LLM-familia etc.
+    // na mesma instância Redis sem risco de colisão.
     this.indexKey = `sem_cache:${namespace}:index`
     this.keyPrefix = `sem_cache:${namespace}`
 
@@ -65,15 +71,19 @@ export class SemanticCacheService<T> {
     }
 
     const data = (await response.json()) as CohereEmbedResponse
-    return data.embeddings.float[0]
+    const embedding = data.embeddings.float[0]
+    if (!embedding) throw new Error('Cohere returned no embedding')
+    return embedding
   }
 
   private cosineSimilarity(a: number[], b: number[]): number {
     let dot = 0, normA = 0, normB = 0
     for (let i = 0; i < a.length; i++) {
-      dot += a[i] * b[i]
-      normA += a[i] * a[i]
-      normB += b[i] * b[i]
+      const ai = a[i] ?? 0
+      const bi = b[i] ?? 0
+      dot += ai * bi
+      normA += ai * ai
+      normB += bi * bi
     }
     if (normA === 0 || normB === 0) return 0
     return dot / (Math.sqrt(normA) * Math.sqrt(normB))
@@ -84,6 +94,7 @@ export class SemanticCacheService<T> {
       const keys = await this.redis.smembers(this.indexKey)
       if (keys.length === 0) return null
 
+      // Embedding e busca no Redis em paralelo para economizar latência.
       const [queryEmbedding, rawValues] = await Promise.all([
         this.embed(query),
         this.redis.mget(...keys),
@@ -94,8 +105,10 @@ export class SemanticCacheService<T> {
       let bestEntry: CacheEntry<T> | null = null
 
       for (let i = 0; i < keys.length; i++) {
-        const raw = rawValues[i]
+        const raw = rawValues[i] ?? null
         if (!raw) {
+          // Chave expirou pelo TTL mas ainda está no Set de índice.
+          // Acumulamos para limpar de forma lazy após o loop.
           expiredKeys.push(keys[i])
           continue
         }

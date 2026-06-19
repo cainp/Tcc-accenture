@@ -32,7 +32,12 @@ export async function streamChatCompletion(
 
     const text = decoder.decode(value, { stream: true })
 
+    // Cache hits chegam como um único chunk grande (resposta completa de uma vez).
+    // Streaming real do Groq envia pequenos chunks distribuídos no tempo.
+    // O threshold de 150 chars detecta cache hits e simula digitação para
+    // manter a experiência visual consistente entre os dois casos.
     if (isFirstChunk && text.length > 150) {
+      // 3 chars a cada 8ms ≈ 375 chars/seg — velocidade que parece digitação natural.
       for (let i = 0; i < text.length; i += 3) {
         if (signal?.aborted) return
         onChunk(text.slice(i, i + 3))

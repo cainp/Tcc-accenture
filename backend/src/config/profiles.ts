@@ -10,6 +10,7 @@ export interface ProfileConfig {
 
 const PROFILES: Record<UserProfile, ProfileConfig> = {
   professor: {
+    // temperature mais alta que gestor: respostas mais elaboradas e exemplificadas.
     temperature: 0.4,
     max_tokens: 600,
     frequency_penalty: 0.3,
@@ -30,6 +31,8 @@ const PROFILES: Record<UserProfile, ProfileConfig> = {
       'Seja acolhedor e empático. Foque em direitos e orientações práticas do dia a dia.',
   },
   gestor: {
+    // temperature baixa para máxima previsibilidade: gestores precisam de respostas
+    // objetivas baseadas em legislação, sem variação criativa.
     temperature: 0.1,
     max_tokens: 300,
     frequency_penalty: 0.0,

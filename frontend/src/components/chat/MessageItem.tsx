@@ -23,7 +23,8 @@ function useTypingAnimation(content: string, active: boolean): string {
 
   useEffect(() => {
     if (!active) {
-      // Stream ended — reveal everything immediately so there is no long tail
+      // Stream terminou: revela o conteúdo restante de uma vez para evitar
+      // que o intervalo continue animando após o assistente parar de responder.
       setDisplayed(ref.current.content)
       ref.current.len = ref.current.content.length
       return

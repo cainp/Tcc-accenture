@@ -19,6 +19,9 @@ export class AIService {
     private readonly systemPrompt: string,
     private readonly ragServiceUrl: string,
     private readonly ragCache?: SemanticCacheService<RagArticle[]>,
+    // Um Map separado por perfil evita que perguntas similares de perfis diferentes
+    // retornem a mesma resposta cacheada — embeddings de queries idênticas têm
+    // similaridade alta independente do prefixo de perfil no texto.
     private readonly llmCaches?: Map<string, SemanticCacheService<string>>,
   ) {}
 
@@ -66,6 +69,9 @@ export class AIService {
       )
       .join('\n\n---\n\n')
 
+    // A persona é inserida DEPOIS dos artigos deliberadamente: modelos pequenos
+    // têm viés de recência — a última instrução lida pesa mais na geração.
+    // Colocar a persona antes dos artigos fazia ela ser ignorada.
     const parts = [
       this.systemPrompt,
       `## Artigos Recuperados do Portal Diversa\n\n${contextBlock}`,
@@ -81,6 +87,8 @@ export class AIService {
     const lastUserMsg = [...messages].reverse().find((m) => m.role === 'user')
 
     const llmCache = this.llmCaches?.get(profile ?? 'default')
+    // cacheKey usa apenas o conteúdo da mensagem (sem prefixo de perfil) porque
+    // o isolamento por perfil já é garantido pelo namespace do SemanticCacheService.
     const cacheKey = lastUserMsg?.content ?? null
 
     if (llmCache && cacheKey) {
@@ -151,6 +159,7 @@ export class AIService {
       }
     }
 
+    // Fire-and-forget: não aguardamos o set para não bloquear o fim do stream.
     if (llmCache && cacheKey && fullResponse) {
       llmCache.set(cacheKey, fullResponse).catch(() => {})
     }
