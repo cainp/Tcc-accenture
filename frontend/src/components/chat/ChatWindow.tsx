@@ -10,7 +10,7 @@ export function ChatWindow() {
 
   return (
     <main className="flex flex-col flex-1 h-full overflow-hidden">
-      <Header title={activeConversation?.title ?? 'Nova Conversa'} />
+      <Header />
 
       <div className="flex-1 overflow-hidden">
         {activeConversation && activeConversation.messages.length > 0 ? (
