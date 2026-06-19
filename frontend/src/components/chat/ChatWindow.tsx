@@ -49,13 +49,13 @@ interface WelcomeScreenProps {
 function WelcomeScreen({ onSend, onStop, isStreaming, disabled }: WelcomeScreenProps) {
   return (
     <div className="w-full flex flex-col items-center text-center px-6">
-      <div className="w-14 h-14 rounded-full bg-[#A100FF]/15 border border-[#A100FF]/20 flex items-center justify-center mb-5">
+      <div className="flex items-center gap-3 mb-2">
         <AccureArrow size={22} />
+        <h2 className="text-[32px] font-semibold text-white">
+          Como posso te ajudar hoje?
+        </h2>
       </div>
-      <h2 className="text-2xl font-semibold text-white mb-2">
-        Como posso te ajudar hoje?
-      </h2>
-      <p className="text-gray-400 text-sm max-w-xs mb-8">
+      <p className="text-gray-400 text-base font-light max-w-lg mb-8">
         Estou pronto para te auxiliar na criação de aulas acessíveis, busca por recursos pedagógicos ou dúvidas sobre inclusão escolar
       </p>
       <div className="w-full max-w-3xl">
