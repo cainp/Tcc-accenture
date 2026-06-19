@@ -16,8 +16,8 @@ export function MessageList({ messages, isStreaming }: MessageListProps) {
   }, [messages])
 
   return (
-    <div className="h-full overflow-y-auto px-6 pt-[44px] pb-6">
-      <div className="max-w-3xl mx-auto space-y-6">
+    <div className="h-full overflow-y-auto px-6 pt-[72px] pb-6">
+      <div className="max-w-3xl mx-auto space-y-12">
         {messages.map((msg) => (
           <MessageItem
             key={msg.id}
