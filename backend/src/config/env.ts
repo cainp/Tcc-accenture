@@ -7,6 +7,8 @@ export interface Env {
   FRONTEND_URL: string
   SYSTEM_PROMPT: string
   RAG_SERVICE_URL: string
+  REDIS_URL?: string
+  COHERE_API_KEY?: string
 }
 
 function loadSystemPrompt(): string {
@@ -29,5 +31,7 @@ export function getEnv(): Env {
     FRONTEND_URL: process.env.FRONTEND_URL ?? 'http://localhost:5173',
     SYSTEM_PROMPT: loadSystemPrompt(),
     RAG_SERVICE_URL: process.env.RAG_SERVICE_URL ?? 'http://localhost:8000',
+    REDIS_URL: process.env.REDIS_URL,
+    COHERE_API_KEY: process.env.COHERE_API_KEY,
   }
 }

@@ -1,10 +1,11 @@
 import type { ChatMessage } from '../types/chat.ts'
 import { resolvePreset } from '../config/profiles.ts'
+import type { SemanticCacheService } from './semantic-cache.service.ts'
 
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions'
 const GROQ_MODEL = 'llama-3.1-8b-instant'
 
-interface RagArticle {
+export interface RagArticle {
   titulo: string
   texto: string
   url: string
@@ -17,9 +18,16 @@ export class AIService {
     private readonly apiKey: string,
     private readonly systemPrompt: string,
     private readonly ragServiceUrl: string,
+    private readonly ragCache?: SemanticCacheService<RagArticle[]>,
+    private readonly llmCache?: SemanticCacheService<string>,
   ) {}
 
   private async retrieveContext(query: string): Promise<RagArticle[]> {
+    if (this.ragCache) {
+      const cached = await this.ragCache.get(query)
+      if (cached) return cached
+    }
+
     try {
       const response = await fetch(`${this.ragServiceUrl}/retrieve`, {
         method: 'POST',
@@ -34,6 +42,11 @@ export class AIService {
       const data = (await response.json()) as { results: RagArticle[] }
       const results = data.results ?? []
       console.log(`[RAG] query="${query}" → ${results.length} artigos (scores: ${results.map((r) => r.score.toFixed(3)).join(', ')})`)
+
+      if (results.length > 0) {
+        this.ragCache?.set(query, results).catch(() => {})
+      }
+
       return results
     } catch (err) {
       console.error(`[RAG] Falha ao recuperar contexto para "${query}":`, err)
@@ -65,11 +78,17 @@ export class AIService {
 
   async *streamCompletion(messages: ChatMessage[], profile?: string): AsyncGenerator<string> {
     const preset = resolvePreset(profile)
-
     const lastUserMsg = [...messages].reverse().find((m) => m.role === 'user')
-    const context = lastUserMsg
-      ? await this.retrieveContext(lastUserMsg.content)
-      : []
+
+    if (this.llmCache && lastUserMsg) {
+      const cached = await this.llmCache.get(lastUserMsg.content)
+      if (cached) {
+        yield cached
+        return
+      }
+    }
+
+    const context = lastUserMsg ? await this.retrieveContext(lastUserMsg.content) : []
     const systemPrompt = this.buildSystemPromptWithContext(context)
 
     const response = await fetch(GROQ_URL, {
@@ -102,6 +121,7 @@ export class AIService {
     const reader = response.body.getReader()
     const decoder = new TextDecoder()
     let buffer = ''
+    let fullResponse = ''
 
     while (true) {
       const { done, value } = await reader.read()
@@ -118,11 +138,18 @@ export class AIService {
         try {
           const json = JSON.parse(trimmed.slice(6))
           const content = json.choices?.[0]?.delta?.content
-          if (content) yield content
+          if (content) {
+            fullResponse += content
+            yield content
+          }
         } catch {
           // skip malformed SSE chunks
         }
       }
+    }
+
+    if (this.llmCache && lastUserMsg && fullResponse) {
+      this.llmCache.set(lastUserMsg.content, fullResponse).catch(() => {})
     }
   }
 }
