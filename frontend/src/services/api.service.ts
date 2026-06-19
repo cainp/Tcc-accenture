@@ -24,10 +24,24 @@ export async function streamChatCompletion(
 
   const reader = response.body.getReader()
   const decoder = new TextDecoder()
+  let isFirstChunk = true
 
   while (true) {
     const { done, value } = await reader.read()
     if (done) break
-    onChunk(decoder.decode(value, { stream: true }))
+
+    const text = decoder.decode(value, { stream: true })
+
+    if (isFirstChunk && text.length > 150) {
+      for (let i = 0; i < text.length; i += 3) {
+        if (signal?.aborted) return
+        onChunk(text.slice(i, i + 3))
+        await new Promise((r) => setTimeout(r, 8))
+      }
+    } else {
+      onChunk(text)
+    }
+
+    isFirstChunk = false
   }
 }
