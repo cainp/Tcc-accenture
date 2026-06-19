@@ -19,7 +19,7 @@ export function ChatWindow() {
 
   return (
     <main className="flex flex-col flex-1 h-full overflow-hidden">
-      <Header />
+      <Header title={activeConversation?.title ?? 'Nova Conversa'} />
 
       {hasMessages ? (
         <>
