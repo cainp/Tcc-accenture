@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react'
-import { AccureLogo } from '../ui/Logo'
+import diversaLogo from '../../assets/DIversa-logo.svg'
 
 interface HeaderProps {
   title: string
@@ -10,7 +10,7 @@ export function Header({ title }: HeaderProps) {
     <header className="flex items-center justify-between px-6 py-3 border-b border-white/5 bg-[#201F1F]/60 flex-shrink-0">
       <div className="flex items-center gap-3 min-w-0">
         <div className="flex-shrink-0">
-          <AccureLogo width={72} height={27} />
+          <img src={diversaLogo} alt="DIversa" width={72} height={27} style={{ width: 72, height: 27, objectFit: 'contain' }} />
         </div>
         <span className="text-white/20">|</span>
         <span className="text-gray-300 text-sm truncate">{title}</span>

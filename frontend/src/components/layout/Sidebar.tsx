@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useChat } from '../../hooks/useChat'
 import type { Conversation } from '../../types/chat'
+import accentureLogo from '../../assets/accenture-logo.svg'
 
 export function Sidebar() {
   const {
@@ -14,6 +15,9 @@ export function Sidebar() {
 
   return (
     <aside className="w-64 flex flex-col bg-[#201F1F] h-full flex-shrink-0">
+      <div className="px-4 pt-4 pb-2 flex justify-center">
+        <img src={accentureLogo} alt="Accenture" width={120} height={45} style={{ width: 120, height: 45, objectFit: 'contain' }} />
+      </div>
       <div className="p-4">
         <button
           onClick={createConversation}
