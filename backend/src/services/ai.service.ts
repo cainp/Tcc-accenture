@@ -159,6 +159,15 @@ export class AIService {
       }
     }
 
+    if (context.length > 0) {
+      // Remove URLs duplicadas caso o mesmo artigo apareça mais de uma vez
+      const uniqueContext = Array.from(new Map(context.map(item => [item.url, item])).values())
+      
+      const sourcesText = '\n\n**Fontes utilizadas:**\n' + uniqueContext.map(r => `- [${r.titulo}](${r.url})`).join('\n')
+      fullResponse += sourcesText
+      yield sourcesText
+    }
+
     // Fire-and-forget: não aguardamos o set para não bloquear o fim do stream.
     if (llmCache && cacheKey && fullResponse) {
       llmCache.set(cacheKey, fullResponse).catch(() => {})
