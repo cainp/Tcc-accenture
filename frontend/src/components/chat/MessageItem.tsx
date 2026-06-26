@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import type { Message, UserProfile } from '../../types/chat'
 import { AccureArrow } from '../ui/Logo'
 
@@ -69,6 +70,7 @@ export function MessageItem({ message, isStreaming = false }: MessageItemProps) 
         {displayed ? (
           <>
             <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
               components={{
                 a: ({ href, children }) => (
                   <a
